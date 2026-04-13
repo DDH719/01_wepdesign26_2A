@@ -13,7 +13,7 @@
 body{
   font-family:'Pretendard',sans-serif;
   background:#f6f1e8;
-  color:#2b2b2b;
+  color:#1a1a1a;
   height:100vh;
   display:flex;
   align-items:center;
@@ -45,7 +45,7 @@ h1{
 }
 
 .typing{
-  border-right:2px solid #b23a2b;
+  border-right:3px solid #ff2d2d;
   padding-right:6px;
   white-space:pre-wrap;
   animation: blink .7s infinite;
@@ -53,13 +53,13 @@ h1{
 
 @keyframes blink{
   0%,100%{border-color:transparent}
-  50%{border-color:#b23a2b}
+  50%{border-color:#ff2d2d}
 }
 
 p{
   font-size:17px;
   line-height:2.1;
-  color:#444;
+  color:#333;
   margin-bottom:32px;
   max-width:620px;
   opacity:0;
@@ -74,7 +74,7 @@ p:nth-of-type(4){animation-delay:4.4s}
 p:nth-of-type(5){animation-delay:4.7s}
 
 .highlight{
-  color:#b23a2b;
+  color:#ff2d2d;
 }
 
 @keyframes fadeUp{
@@ -135,13 +135,13 @@ function type(){
   if(i < text.length){
     target.innerHTML += text[i] === "\n" ? "<br>" : text[i];
     i++;
-    setTimeout(type, 90);
+    setTimeout(type, 80);
   }
 }
 
 setTimeout(type, 400);
 
-/* bubble drawing */
+/* bubble interaction */
 const canvas = document.getElementById('bg');
 const ctx = canvas.getContext('2d');
 
@@ -156,55 +156,53 @@ window.addEventListener('mousemove', e => {
 });
 
 let bubbles = [];
-
 let prevMouse = {x: mouse.x, y: mouse.y};
 
-for(let i=0;i<50;i++){
+for(let i=0;i<40;i++){
   bubbles.push({
     x: Math.random()*canvas.width,
     y: Math.random()*canvas.height,
-    r: Math.random()*10 + 4, // bigger bubbles
-    vx: (Math.random()-0.5)*1,
-    vy: (Math.random()-0.5)*1
+    r: Math.random()*20 + 10, // much bigger
+    vx: (Math.random()-0.5)*2,
+    vy: (Math.random()-0.5)*2
   });
 }
 
 function draw(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // mouse velocity
   let mvx = mouse.x - prevMouse.x;
   let mvy = mouse.y - prevMouse.y;
 
   bubbles.forEach(b=>{
-    // strong mouse push (splash effect)
-    let dx = mouse.x - b.x;
-    let dy = mouse.y - b.y;
+    let dx = b.x - mouse.x;
+    let dy = b.y - mouse.y;
     let dist = Math.sqrt(dx*dx + dy*dy);
 
-    if(dist < 200){
-      b.vx += dx * 0.002 + mvx * 0.1;
-      b.vy += dy * 0.002 + mvy * 0.1;
+    // push away from mouse (repel only)
+    if(dist < 180){
+      b.vx += dx * 0.01 + mvx * 0.2;
+      b.vy += dy * 0.01 + mvy * 0.2;
     }
 
-    // damping but lighter → more lively
-    b.vx *= 0.96;
-    b.vy *= 0.96;
+    // damping
+    b.vx *= 0.95;
+    b.vy *= 0.95;
 
     b.x += b.vx;
     b.y += b.vy;
 
-    // draw bubble
+    // blue outer
     ctx.beginPath();
     ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-    ctx.strokeStyle = 'rgba(60,60,60,0.25)';
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = 'rgba(0,120,255,0.4)';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // inner highlight
+    // red inner accent
     ctx.beginPath();
-    ctx.arc(b.x - b.r*0.3, b.y - b.r*0.3, b.r*0.35, 0, Math.PI*2);
-    ctx.fillStyle = 'rgba(178,58,43,0.18)';
+    ctx.arc(b.x - b.r*0.2, b.y - b.r*0.2, b.r*0.4, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,45,45,0.25)';
     ctx.fill();
 
     // bounce
